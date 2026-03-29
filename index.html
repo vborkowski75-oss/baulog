@@ -3,112 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bau-App Pro - Bremenports Edition</title>
+    <title>Bau-Log Profi - bremenports</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --primary: #003a66; --accent: #d71920; --success: #27ae60; --bg: #f0f2f5; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        :root { --primary: #003a66; --accent: #d71920; --bg: #f4f7f6; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 10px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
         
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); max-width: 480px; margin: auto; }
-        
-        /* Header mit Logo rechts */
+        /* Header mit Logo oben rechts */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .logo { max-height: 50px; width: auto; }
-        
-        #weather-display { font-size: 0.9rem; color: #555; background: #f9f9f9; padding: 8px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary); text-align: left; }
+        .logo { max-height: 40px; width: auto; }
 
-        #video-container { width: 100%; height: 260px; border-radius: 12px; overflow: hidden; background: #000; margin-bottom: 10px; border: 1px solid #ccc; }
+        #video-container { width: 100%; height: 250px; background: #000; border-radius: 10px; overflow: hidden; position: relative; }
         video { width: 100%; height: 100%; object-fit: cover; }
-        #photo-preview { width: 100%; height: 260px; border-radius: 12px; object-fit: cover; display: none; border: 3px solid var(--primary); }
+        #photo-preview { width: 100%; height: 250px; object-fit: cover; display: none; border-radius: 10px; border: 3px solid var(--primary); }
 
         .controls { display: flex; justify-content: space-around; margin: 20px 0; }
-        .btn-round { border: none; border-radius: 50%; width: 70px; height: 70px; font-size: 1.8rem; cursor: pointer; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-round { border: none; border-radius: 50%; width: 70px; height: 70px; font-size: 1.8rem; cursor: pointer; color: white; background: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         #micBtn { background: var(--accent); }
-        #camBtn { background: var(--primary); }
-        .active { animation: pulse 1.2s infinite; filter: contrast(1.5); }
-        
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
+        .active { animation: pulse 1s infinite; filter: brightness(1.2); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        textarea { width: 100%; border-radius: 10px; border: 1px solid #ccc; padding: 12px; font-size: 1rem; box-sizing: border-box; margin-top: 10px; }
-        
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .btn-long { border: none; border-radius: 8px; padding: 15px; font-weight: bold; cursor: pointer; color: white; }
-        #saveBtn { background: var(--success); }
+        textarea { width: 100%; border: 1px solid #ccc; padding: 15px; border-radius: 8px; font-size: 1.1rem; box-sizing: border-box; margin-bottom: 15px; }
+        .btn-long { width: 100%; border: none; padding: 18px; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-bottom: 10px; }
+        #saveBtn { background: #27ae60; }
         #pdfBtn { background: #34495e; }
 
-        /* PDF & Liste */
-        #report-area { margin-top: 25px; max-width: 480px; margin-left: auto; margin-right: auto; }
-        .entry { background: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-start; border: 1px solid #eee; }
-        .entry img { width: 90px; height: 90px; object-fit: cover; border-radius: 6px; }
-        .entry-info { flex: 1; font-size: 0.9rem; }
-        .entry-date { font-size: 0.75rem; color: #777; margin-bottom: 4px; }
-        
-        @media print { .no-print { display: none; } }
+        /* PDF LAYOUT (Wird nur beim Export sichtbar) */
+        #report-area { background: white; padding: 30px; color: black; display: none; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; }
+        .pdf-entry { border-bottom: 1px solid #eee; padding: 20px 0; display: flex; gap: 20px; page-break-inside: avoid; }
+        .pdf-entry img { width: 180px; height: 180px; object-fit: cover; border-radius: 5px; }
+        .pdf-date { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div class="card no-print">
     <div class="header">
-        <h2 style="margin:0; color: var(--primary);">Bau-Log</h2>
-        <img src="bremenports Logo klein.jpg" class="logo" alt="bremenports" onerror="this.style.display='none'">
+        <h2 style="margin:0; color:var(--primary);">Bau-Log</h2>
+        <img src="bremenports Logo klein.jpg" class="logo" alt="Logo">
     </div>
 
-    <div id="weather-display">Wetter wird geladen...</div>
-    
     <div id="video-container"><video id="video" autoplay playsinline></video></div>
-    <img id="photo-preview">
+    <img id="photo-preview" src="">
 
     <div class="controls">
-        <button id="micBtn" class="btn-round" onclick="startVoice()">🎤</button>
-        <button id="camBtn" class="btn-round" onclick="snap()">📸</button>
+        <button id="micBtn" class="btn-round" title="Diktieren" onclick="toggleSpeech()">🎤</button>
+        <button id="camBtn" class="btn-round" title="Foto machen" onclick="snap()">📸</button>
     </div>
 
-    <textarea id="note" rows="3" placeholder="Sprechen oder tippen..."></textarea>
+    <textarea id="note" rows="3" placeholder="Notiz hier dritieren oder tippen..."></textarea>
     
-    <div class="action-grid">
-        <button id="saveBtn" class="btn-long" onclick="save()">💾 Speichern</button>
-        <button id="pdfBtn" class="btn-long" onclick="exportPDF()">📄 PDF Export</button>
-    </div>
+    <button id="saveBtn" class="btn-long" onclick="save()">💾 Eintrag speichern</button>
+    <button id="pdfBtn" class="btn-long" onclick="exportPDF()">📄 PDF Bericht erstellen</button>
 </div>
 
 <div id="report-area">
-    <div id="log-entries"></div>
+    <div class="pdf-header">
+        <div>
+            <h1 style="margin:0; color:#003a66;">Bautagebuch</h1>
+            <p id="pdf-gen-date" style="margin:0; color:#666;"></p>
+        </div>
+        <img src="bremenports Logo klein.jpg" class="logo">
+    </div>
+    <div id="pdf-content"></div>
 </div>
 
 <canvas id="canvas" style="display:none;"></canvas>
 
 <script>
 let recognition;
-let pic = null;
-let currentWetter = "Wetter nicht verfügbar";
+let picData = null;
+const DB_NAME = 'baulog_data_v1';
 
 window.onload = async () => {
-    // Wetter ohne API Key abrufen
-    fetch('https://wttr.in/?format=%l:+%C+%t')
-        .then(response => response.text())
-        .then(data => {
-            currentWetter = data;
-            document.getElementById('weather-display').innerText = "📍 " + data;
-        })
-        .catch(() => document.getElementById('weather-display').innerText = "Wetterdaten nicht erreichbar");
-
     try {
-        const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        document.getElementById('video').srcObject = s;
-    } catch(e) { alert("Kamera-Zugriff verweigert."); }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        document.getElementById('video').srcObject = stream;
+    } catch(e) { console.error("Kamera nicht bereit"); }
     render();
 };
 
-function startVoice() {
-    const SR = window.webkitSpeechRecognition || window.SpeechRecognition;
-    if(!SR) return alert("Mikrofon-Dienst nicht verfügbar.");
-    if(!recognition) {
-        recognition = new SR();
+function toggleSpeech() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Browser unterstützt kein Mikrofon.");
+    
+    if (!recognition) {
+        recognition = new SpeechRecognition();
         recognition.lang = 'de-DE';
+        recognition.continuous = false;
         recognition.onstart = () => document.getElementById('micBtn').classList.add('active');
         recognition.onend = () => document.getElementById('micBtn').classList.remove('active');
-        recognition.onresult = (e) => document.getElementById('note').value = e.results[0][0].transcript;
+        recognition.onresult = (e) => {
+            document.getElementById('note').value += e.results[0][0].transcript;
+        };
     }
     recognition.start();
 }
@@ -118,39 +107,51 @@ function snap() {
     const c = document.getElementById('canvas');
     c.width = v.videoWidth; c.height = v.videoHeight;
     c.getContext('2d').drawImage(v, 0, 0);
-    pic = c.toDataURL('image/jpeg', 0.6);
-    document.getElementById('photo-preview').src = pic;
+    picData = c.toDataURL('image/jpeg', 0.8);
+    document.getElementById('photo-preview').src = picData;
     document.getElementById('photo-preview').style.display = 'block';
     document.getElementById('video-container').style.display = 'none';
 }
 
 function save() {
     const text = document.getElementById('note').value;
-    const data = JSON.parse(localStorage.getItem('bau_v3') || '[]');
-    data.unshift({ 
-        id: Date.now(), text, pic, wetter: currentWetter,
-        ts: new Date().toLocaleString('de-DE') 
-    });
-    localStorage.setItem('bau_v3', JSON.stringify(data));
-    
+    if (!text && !picData) return alert("Bitte Text oder Foto hinzufügen!");
+
+    const entry = {
+        id: Date.now(),
+        date: new Date().toLocaleString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+        text: text,
+        image: picData
+    };
+
+    const data = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+    data.unshift(entry);
+    localStorage.setItem(DB_NAME, JSON.stringify(data));
+
     // Reset
     document.getElementById('note').value = '';
     document.getElementById('photo-preview').style.display = 'none';
     document.getElementById('video-container').style.display = 'block';
-    pic = null;
+    picData = null;
+    alert("Gespeichert!");
     render();
 }
 
 function render() {
-    const container = document.getElementById('log-entries');
-    const data = JSON.parse(localStorage.getItem('bau_v3') || '[]');
-    container.innerHTML = data.map(i => `
-        <div class="entry">
-            <img src="${i.pic || ''}" style="background:#eee">
-            <div class="entry-info">
-                <div class="entry-date">${i.ts}</div>
-                <div style="font-size:0.7rem; color:var(--primary); margin-bottom:5px;">🌤 ${i.wetter}</div>
-                <strong>${i.text}</strong>
+    const data = JSON.parse(localStorage.getItem(DB_NAME) || '[]');
+    const container = document.getElementById('pdf-content');
+    
+    if(data.length === 0) {
+        container.innerHTML = "<p>Keine Einträge vorhanden.</p>";
+        return;
+    }
+
+    container.innerHTML = data.map(item => `
+        <div class="pdf-entry">
+            ${item.image ? `<img src="${item.image}">` : '<div style="width:180px; height:100px; background:#eee; display:flex; align-items:center; justify-content:center; color:#999;">Kein Foto</div>'}
+            <div>
+                <div class="pdf-date">${item.date}</div>
+                <div style="font-size:1.1rem; line-height:1.4;">${item.text.replace(/\n/g, '<br>')}</div>
             </div>
         </div>
     `).join('');
@@ -158,19 +159,26 @@ function render() {
 
 function exportPDF() {
     const element = document.getElementById('report-area');
+    document.getElementById('pdf-gen-date').innerText = "Erstellt am: " + new Date().toLocaleDateString();
+    
+    element.style.display = 'block'; // Für Export sichtbar machen
+
     const opt = {
-        margin: 10,
-        filename: 'Bautagebuch_Export.pdf',
-        html2canvas: { scale: 2 },
+        margin: [10, 10],
+        filename: 'bremenports_Bautagebuch.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    html2pdf().set(opt).from(element).save();
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        element.style.display = 'none'; // Danach wieder verstecken
+    });
 }
-// Service Worker registrieren für Offline-Modus
+
+// Offline-Fähigkeit
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-    .then(() => console.log("Offline-Modus aktiv!"))
-    .catch((err) => console.log("ServiceWorker Fehler:", err));
+    navigator.serviceWorker.register('./sw.js');
 }
 </script>
 </body>
